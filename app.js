@@ -25,7 +25,10 @@ const createHtml = async () => {
 
 const createPdf = async () => {
     const html = await createHtml();
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        headless: false,
+        args: ['--headless', '--disable-dev-shm-usage', '--no-sandbox'],
+    });
     const page = await browser.newPage();
     const options = {
         path: 'generated-pdf.pdf',
@@ -42,8 +45,11 @@ app.get('/', async (_, res) => {
         await createPdf();
         res.download(`${__dirname}/generated-pdf.pdf`, 'the-real-pdf.pdf');
     } catch (e) {
+        console.log(e);
         res.status(500).send({ error: e });
     }
 });
 
-app.listen(8080);
+app.listen(8080, () => {
+    console.log('started');
+});
